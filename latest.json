@@ -1,0 +1,11 @@
+{
+    "version":  "1.3.0",
+    "notes":  "装机大师 v1.3.0：打通 GitHub 自动更新（Releases/Pages/raw 三通道冗余）；组件精简支持批量勾选一键应用；补丁按挂载版本自动识别获取；驱动支持本地检测与导入；无人值守支持导入应答、浏览版本名与安装背景定制；新增 ISO 挂载解包、一键提取 install.wim、按目录一键生成 ISO；修复多项 UI 与稳定性问题。",
+    "pub_date":  "2026-10-04T00:00:00Z",
+    "platforms":  {
+                      "windows-x86_64":  {
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUSmJyY1U4T28yNnRNL3FRVlhIdk9PVSs5QitvRHdIbWZSS0g4OHAwRjQvNUswNVZSQXNuQVdEamU2RHE5bUJZRkVuNHlZa1lXTTNDY0ZINXJRUWYxdCtvb0RHdmQ2YVE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkxMDg5NDE4CWZpbGU66KOF5py65aSn5biIXzEuMy4wX3g2NC1zZXR1cC5leGUJdmVyc2lvbjoxLjMuMApHRXd4blpKZzBmcG1IdERjVjRpbnV6UDhkOTBmS0sxbEJJR0pKWkFBQ3hqTGV4aWphTm03MHc4S3NpVnpEYXN4YktUcDRPb3ZvZHExejhocTN1QkdCQT09Cg==",
+                                             "url":  "https://github.com/haoeastspeed/zhuangjidashi-release/releases/download/v1.3.0/ZhuangJiDaShi_1.3.0_x64-setup.exe"
+                                         }
+                  }
+}

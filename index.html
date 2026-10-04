@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>装机大师 · 镜像定制与无人值守部署工具</title>
+<meta name="description" content="装机大师 —— 面向个人与装机商的 Windows 系统镜像深度定制工具：驱动/补丁集成、组件精简、无人值守应答、任务序列、PXE 网络部署、启动 U 盘与装机后优化，离线挂载、可反复操作、安全可逆。">
+<style>
+  :root{
+    --bg:#0c1018; --bg2:#0f1420; --card:#151b28; --card2:#1a2233;
+    --border:#252e40; --border2:#31405c;
+    --accent:#3a86f0; --accent2:#2f6fed; --accent-soft:rgba(58,134,240,.13);
+    --text:#e8edf6; --muted:#9aa7bd; --muted2:#6f7d94;
+    --ok:#3fb96b; --warn:#e0a83a; --radius:14px;
+    --shadow:0 18px 50px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  .accent{color:var(--accent)}
+
+  /* nav */
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(12,16,24,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:18px}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#4a94ff,#1f62d8);display:grid;place-items:center;box-shadow:0 6px 16px rgba(47,111,237,.4)}
+  .brand .logo svg{width:20px;height:20px}
+  .brand small{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.5px}
+  .nav-links{display:flex;gap:26px;font-size:14px;color:var(--muted)}
+  .nav-links a:hover{color:var(--text)}
+  .btn{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:11px 22px;font-size:15px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:.18s;white-space:nowrap}
+  .btn-primary{background:linear-gradient(135deg,#4a94ff,#2f6fed);color:#fff;box-shadow:0 10px 26px rgba(47,111,237,.38)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(47,111,237,.5)}
+  .btn-ghost{background:var(--card);border-color:var(--border2);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--accent);color:#fff}
+  .btn-sm{padding:8px 15px;font-size:13.5px}
+
+  /* hero */
+  .hero{position:relative;padding:88px 0 76px;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:-180px;right:-120px;width:560px;height:560px;border-radius:50%;
+    background:radial-gradient(circle,rgba(47,111,237,.28),transparent 65%);pointer-events:none}
+  .hero::after{content:"";position:absolute;bottom:-200px;left:-140px;width:520px;height:520px;border-radius:50%;
+    background:radial-gradient(circle,rgba(74,148,255,.16),transparent 65%);pointer-events:none}
+  .hero .tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);
+    border:1px solid var(--border2);background:var(--card);padding:6px 14px;border-radius:999px;margin-bottom:24px}
+  .hero h1{font-size:54px;line-height:1.12;font-weight:800;letter-spacing:1px}
+  .hero h1 .grad{background:linear-gradient(120deg,#6aa6ff,#3a86f0 55%,#8fb8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .sub{font-size:21px;color:var(--muted);margin-top:14px;font-weight:500}
+  .hero p.lead{font-size:16.5px;color:var(--muted);max-width:680px;margin-top:20px}
+  .hero-actions{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
+  .hero-meta{display:flex;gap:26px;margin-top:32px;flex-wrap:wrap;font-size:13.5px;color:var(--muted2)}
+  .hero-meta b{color:var(--muted);font-weight:600}
+
+  /* sections */
+  section{padding:72px 0}
+  .sec-head{text-align:center;max-width:680px;margin:0 auto 50px}
+  .sec-head .kicker{color:var(--accent);font-size:13.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+  .sec-head h2{font-size:34px;font-weight:800;margin:10px 0 14px}
+  .sec-head p{color:var(--muted);font-size:16px}
+
+  .grid{display:grid;gap:20px}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:.2s}
+  .card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:var(--shadow)}
+  .feat .ic{width:46px;height:46px;border-radius:12px;background:var(--accent-soft);display:grid;place-items:center;margin-bottom:16px;color:var(--accent)}
+  .feat .ic svg{width:24px;height:24px}
+  .feat h3{font-size:17px;font-weight:700;margin-bottom:8px}
+  .feat p{font-size:14px;color:var(--muted)}
+
+  /* shots */
+  .shots{grid-template-columns:repeat(2,1fr)}
+  .shot{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border);cursor:zoom-in;background:var(--card)}
+  .shot img{width:100%;display:block;transition:.25s}
+  .shot:hover img{transform:scale(1.03)}
+  .shot .cap{position:absolute;left:0;right:0;bottom:0;padding:12px 16px;font-size:13.5px;font-weight:600;
+    background:linear-gradient(transparent,rgba(8,11,18,.92));color:#fff}
+
+  /* downloads table */
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--card)}
+  table{width:100%;border-collapse:collapse;min-width:720px}
+  th,td{padding:16px 18px;text-align:left;font-size:14.5px;border-bottom:1px solid var(--border)}
+  th{background:var(--bg2);color:var(--muted);font-weight:600;font-size:13px;letter-spacing:.5px}
+  tr:last-child td{border-bottom:none}
+  td .dl{color:var(--accent);font-weight:600}
+  td .dl:hover{text-decoration:underline}
+  .pill{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;font-weight:600}
+  .pill.rec{background:rgba(63,185,107,.15);color:var(--ok)}
+  .pill.off{background:rgba(224,168,58,.15);color:var(--warn)}
+
+  /* steps */
+  .steps{counter-reset:s;grid-template-columns:repeat(5,1fr);gap:16px}
+  .step{position:relative;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 20px}
+  .step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:9px;
+    background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:16px;margin-bottom:14px}
+  .step h4{font-size:15px;margin-bottom:6px}
+  .step p{font-size:13px;color:var(--muted)}
+
+  /* misc */
+  .req{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .req .card{padding:22px}
+  .req h4{font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .req p{font-size:13.5px;color:var(--muted)}
+  .changelog{max-width:760px;margin:0 auto}
+  .changelog .ver{display:flex;align-items:baseline;gap:14px;margin-bottom:10px}
+  .changelog .ver b{font-size:18px}
+  .changelog .ver span{font-size:13px;color:var(--muted2)}
+  .changelog ul{list-style:none;margin:0 0 28px 4px}
+  .changelog li{font-size:14.5px;color:var(--muted);padding:5px 0 5px 22px;position:relative}
+  .changelog li::before{content:"";position:absolute;left:2px;top:14px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  .note{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:10px;padding:18px 22px;font-size:14px;color:var(--muted);max-width:860px;margin:0 auto}
+
+  footer{border-top:1px solid var(--border);padding:44px 0 36px;background:var(--bg2)}
+  .foot-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
+  .foot-inner .brand{font-size:16px}
+  footer .links{display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  footer .links a:hover{color:#fff}
+  .copy{width:100%;text-align:center;color:var(--muted2);font-size:13px;margin-top:22px}
+
+  /* lightbox */
+  .lb{position:fixed;inset:0;background:rgba(6,9,15,.92);z-index:100;display:none;align-items:center;justify-content:center;padding:40px;cursor:zoom-out}
+  .lb.open{display:flex}
+  .lb img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:var(--shadow)}
+
+  @media(max-width:920px){
+    .g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}.steps{grid-template-columns:repeat(2,1fr)}
+    .req{grid-template-columns:1fr}.shots{grid-template-columns:1fr}
+    .hero h1{font-size:40px}.nav-links{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="brand">
+      <span class="logo">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 5.5 11 4v7H4zM13 3.8 20 3v8h-7zM4 13h7v7l-7-1.5zM13 13h7v8l-7-.8z" fill="#fff"/></svg>
+      </span>
+      <span>装机大师<small>镜像定制 · 无人值守</small></span>
+    </div>
+    <nav class="nav-links">
+      <a href="#features">功能特性</a>
+      <a href="#screenshots">产品截图</a>
+      <a href="#download">下载</a>
+      <a href="#start">快速上手</a>
+      <a href="#changelog">更新日志</a>
+    </nav>
+    <a class="btn btn-primary btn-sm" href="#download">立即下载</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">● 免费使用 · v1.3.0 · 支持 Windows 10 / 11</span>
+    <h1>打造属于你的<br><span class="grad">专属 Windows 系统镜像</span></h1>
+    <div class="sub">镜像深度定制 · 无人值守安装 · 批量网络部署</div>
+    <p class="lead">装机大师采用「离线挂载定制」方式，不修改当前系统、可反复操作、可保存预设。从驱动与补丁集成、组件精简，到无人值守应答、PXE 批量部署与装机后优化，一站式完成专业级系统封装。</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.0_x64-setup.exe">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 21h14"/></svg>
+        下载最新版 v1.3.0
+      </a>
+      <a class="btn btn-ghost" href="#download">浏览全部版本</a>
+      <a class="btn btn-ghost" href="https://github.com/haoeastspeed/zhuangjidashi-release" target="_blank" rel="noopener">GitHub 仓库</a>
+    </div>
+    <div class="hero-meta">
+      <span><b>8</b> 大功能模块</span>
+      <span><b>19</b> 个镜像定制功能区</span>
+      <span><b>87</b> 项装机后优化</span>
+      <span><b>离线可逆</b> · 自动备份</span>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Features</div>
+      <h2>专业级封装能力，一站式集成</h2>
+      <p>对标 NTLite、SmartDeploy、MDT 等专业方案，覆盖镜像定制到批量部署的完整链路。</p>
+    </div>
+    <div class="grid g4">
+      <div class="card feat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg></div>
+        <h3>离线镜像定制</h3>
+        <p>挂载 WIM/ESD 映像后离线操作，不触碰当前系统；所有改动自动备份原值，可随时撤销。</p>
+      </div>
+      <div class="card feat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17v2M9 12v7M14 7v12M19 3v16"/></svg></div>
+        <h3>驱动批量集成</h3>
+        <p>递归导入整个驱动文件夹，内置驱动包库；支持硬件无关镜像，部署到不同机型自动适配。</p>
+      </div>
+      <div class="card feat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 7v6c0 5 3.5 8 9 9 5.5-1 9-4 9-9V7z"/></svg></div>
+        <h3>最新补丁集成</h3>
+        <p>自动识别挂载系统版本，批量集成最新累积更新与安全补丁，按依赖顺序安装并清理冗余。</p>
+      </div>
+      <div class="card feat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></div>
+        <h3>组件精简向导</h3>
+        <p>细粒度移除预装应用与可选功能，自动分析依赖与可释放空间，风险分级、中文说明清晰。</p>
+      </div>
+      <div class="card feat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg></div>
+        <h3>无人值守应答</h3>
+        <p>可视化配置分区、账户、区域、OOBE 等，实时预览标准 autounattend.xml，内置多套预设。</p>
+      </div>
+      <div class="card feat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></div>
+        <h3>任务序列 · PXE</h3>
+        <p>图形化编排部署任务序列，内置 PXE 网络部署与监控，机房批量装机一键完成。</p>
+      </div>
+      <div class="card feat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>启动 U 盘 / ISO</h3>
+        <p>一键生成 BIOS+UEFI 双引导 ISO，制作多版本合一启动 U 盘；支持 ISO 挂载浏览与解包。</p>
+      </div>
+      <div class="card feat">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>装机后优化 · 驱动</h3>
+        <p>87 项系统流畅性优化，智能检测硬件并从官网获取驱动；内置应急网卡驱动，保证联网能力。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENSHOTS -->
+<section id="screenshots" style="background:var(--bg2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Screenshots</div>
+      <h2>简洁美观，操作直观</h2>
+      <p>深色 Fluent 界面，搜索筛选栏固定，英文项均附中文提示，点击图片可放大查看。</p>
+    </div>
+    <div class="grid shots">
+      <div class="shot"><img src="assets/screenshots/01_guide.png" alt="操作引导" loading="lazy"><div class="cap">操作引导 · 智能流程</div></div>
+      <div class="shot"><img src="assets/screenshots/02_mount.png" alt="挂载管理" loading="lazy"><div class="cap">挂载管理 · WIM/ESD</div></div>
+      <div class="shot"><img src="assets/screenshots/03_driver.png" alt="驱动管理" loading="lazy"><div class="cap">驱动管理 · 批量集成</div></div>
+      <div class="shot"><img src="assets/screenshots/04_components.png" alt="组件移除" loading="lazy"><div class="cap">组件移除向导 · 风险分级</div></div>
+      <div class="shot"><img src="assets/screenshots/06_unattend.png" alt="无人值守" loading="lazy"><div class="cap">无人值守 · 实时 XML 预览</div></div>
+      <div class="shot"><img src="assets/screenshots/10_tweak.png" alt="系统优化" loading="lazy"><div class="cap">装机后系统优化 · 87 项</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section id="download">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Download</div>
+      <h2>选择适合你的版本</h2>
+      <p>所有版本均为绿色软件，建议优先使用安装版（支持自动更新）；老旧或无 WebView2 的机器请用离线版。</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>版本</th><th>大小</th><th>特点 / 适用场景</th><th>下载</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>安装版</b> <span class="pill rec">推荐</span></td>
+            <td>约 5 MB</td>
+            <td>NSIS 安装、开始菜单与卸载入口，<b>支持一键自动更新</b>；需系统已内置 WebView2（Win10/11 一般自带）。</td>
+            <td><a class="dl" href="https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.0_x64-setup.exe">下载 setup.exe</a></td>
+          </tr>
+          <tr>
+            <td><b>便携版</b></td>
+            <td>约 24 MB</td>
+            <td>单 exe 免安装、即插即用，适合 U 盘随身携带；需系统已内置 WebView2。</td>
+            <td><a class="dl" href="https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.0_portable.exe">下载便携版</a></td>
+          </tr>
+          <tr>
+            <td><b>单文件在线版</b></td>
+            <td>约 25 MB</td>
+            <td>内置 WebView2 引导器，若系统缺少运行时会自动联网下载安装，兼顾体积与兼容。</td>
+            <td><a class="dl" href="https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.0_online.exe">下载在线版</a></td>
+          </tr>
+          <tr>
+            <td><b>单文件离线版</b> <span class="pill off">全兼容</span></td>
+            <td>约 264 MB</td>
+            <td>内置固定 WebView2 运行时，任何 64 位 Windows 机器都可直接运行，适合离线/纯净环境。</td>
+            <td><a class="dl" href="https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.0_offline.exe">下载离线版</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- START -->
+<section id="start" style="background:var(--bg2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Quick Start</div>
+      <h2>五步完成定制镜像</h2>
+      <p>以管理员身份运行，按「操作引导」即可，所有路径会自动创建并记忆。</p>
+    </div>
+    <div class="grid steps">
+      <div class="step"><h4>解包 / 挂载</h4><p>解包 ISO 或直接选择 install.wim，挂载到空的工作目录。</p></div>
+      <div class="step"><h4>深度定制</h4><p>集成驱动与补丁、预装应用、精简组件、品牌与界面定制。</p></div>
+      <div class="step"><h4>配置应答</h4><p>可视化填写无人值守选项，实时预览并保存 autounattend.xml。</p></div>
+      <div class="step"><h4>卸载提交</h4><p>回到挂载管理，卸载并提交更改，改动写回 WIM。</p></div>
+      <div class="step"><h4>生成成品</h4><p>一键生成 ISO、制作启动 U 盘，或经 PXE 批量部署。</p></div>
+    </div>
+
+    <div class="sec-head" style="margin-top:64px"><h2 style="font-size:26px">系统要求</h2></div>
+    <div class="req">
+      <div class="card"><h4>● 操作系统</h4><p>Windows 10 / Windows 11（64 位）；可定制的映像同样支持 Win10 / Win11 各版本。</p></div>
+      <div class="card"><h4>● 权限与运行</h4><p>需管理员权限运行；安装版/便携版需系统内置 WebView2，缺失时请用在线或离线版。</p></div>
+      <div class="card"><h4>● 磁盘空间</h4><p>建议预留 15 GB 以上工作空间（挂载、补丁与临时文件），离线版成品体积较大。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CHANGELOG -->
+<section id="changelog">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Changelog</div>
+      <h2>更新日志</h2>
+    </div>
+    <div class="changelog">
+      <div class="ver"><b>v1.3.0</b><span>2026-10-04</span></div>
+      <ul>
+        <li>打通 GitHub 托管的自动更新，提供 Releases / Pages / raw 三通道冗余，更新更稳定。</li>
+        <li>组件精简向导支持批量勾选一键应用，新增依赖分析与可释放空间统计。</li>
+        <li>补丁集成可按挂载系统版本自动识别并获取对应更新；驱动支持本地检测与导入。</li>
+        <li>无人值守支持导入已有应答文件、浏览读取映像版本名，新增安装背景与提示定制。</li>
+        <li>新增 ISO 挂载浏览/解包、一键提取 install.wim、按挂载目录一键生成 ISO。</li>
+        <li>修复挂载/解包权限与进度显示、滚动条遮挡、表格列宽等一系列 UI 与稳定性问题。</li>
+      </ul>
+    </div>
+
+    <div class="note">
+      <b>免责声明：</b>本软件为系统管理与封装辅助工具，不包含任何盗版激活或绕过授权的功能；请在合法授权的系统与映像上使用。精简组件、修改系统设置存在风险，软件已提供自动备份与撤销能力，但因使用不当造成的后果需由使用者自行承担。建议先在测试环境或虚拟机中验证。
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="brand">
+      <span class="logo" style="width:30px;height:30px"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5.5 11 4v7H4zM13 3.8 20 3v8h-7zM4 13h7v7l-7-1.5zM13 13h7v8l-7-.8z" fill="#fff"/></svg></span>
+      <span>装机大师</span>
+    </div>
+    <div class="links">
+      <a href="https://github.com/haoeastspeed/zhuangjidashi-release/releases" target="_blank" rel="noopener">所有版本</a>
+      <a href="https://github.com/haoeastspeed/zhuangjidashi-release/issues" target="_blank" rel="noopener">问题反馈</a>
+      <a href="#features">功能特性</a>
+      <a href="#download">下载</a>
+    </div>
+    <div class="copy">© 2026 装机大师 · 镜像定制与无人值守部署工具 · 本软件免费提供</div>
+  </div>
+</footer>
+
+<div class="lb" id="lb"><img id="lbimg" alt="产品截图放大"></div>
+<script>
+(function(){
+  var lb=document.getElementById('lb'),img=document.getElementById('lbimg');
+  document.querySelectorAll('.shot img').forEach(function(s){
+    s.parentElement.addEventListener('click',function(){img.src=s.src;lb.classList.add('open');});
+  });
+  lb.addEventListener('click',function(){lb.classList.remove('open');});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')lb.classList.remove('open');});
+})();
+</script>
+</body>
+</html>
