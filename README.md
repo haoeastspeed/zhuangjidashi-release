@@ -1,6 +1,6 @@
 # 装机大师 · 镜像定制与无人值守部署工具
 
-![version](https://img.shields.io/badge/version-v1.3.0-3a86f0) ![platform](https://img.shields.io/badge/Windows-10%20%2F%2011%20x64-3a86f0) ![license](https://img.shields.io/badge/免费使用-3fb96b) ![update](https://img.shields.io/badge/自动更新-GitHub-8fb8ff)
+![version](https://img.shields.io/badge/version-v1.3.1-3a86f0) ![platform](https://img.shields.io/badge/Windows-10%20%2F%2011%20x64-3a86f0) ![license](https://img.shields.io/badge/免费使用-3fb96b) ![update](https://img.shields.io/badge/自动更新-GitHub-8fb8ff)
 
 **产品主页：<https://haoeastspeed.github.io/zhuangjidashi-release/>**
 
@@ -12,10 +12,10 @@
 
 | 版本 | 大小 | 说明 | 下载 |
 |---|---|---|---|
-| **安装版（推荐）** | 约 5 MB | NSIS 安装，**支持一键自动更新**，需系统内置 WebView2 | [setup.exe](https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.0_x64-setup.exe) |
-| **便携版** | 约 24 MB | 单 exe 免安装，适合 U 盘携带，需系统内置 WebView2 | [portable.exe](https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.0_portable.exe) |
-| **单文件在线版** | 约 25 MB | 内置 WebView2 引导器，缺少运行时自动联网下载 | [online.exe](https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.0_online.exe) |
-| **单文件离线版** | 约 264 MB | 内置固定 WebView2 运行时，任意机器可直接运行 | [offline.exe](https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.0_offline.exe) |
+| **安装版（推荐）** | 约 5 MB | NSIS 安装，**支持一键自动更新**，需系统内置 WebView2 | [setup.exe](https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.1_x64-setup.exe) |
+| **便携版** | 约 24 MB | 单 exe 免安装，适合 U 盘携带，需系统内置 WebView2 | [portable.exe](https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.1_Portable.exe) |
+| **单文件在线版** | 约 25 MB | 内置 WebView2 引导器，缺少运行时自动联网下载 | [online.exe](https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.1_SingleOnline.exe) |
+| **单文件离线版** | 约 264 MB | 内置固定 WebView2 运行时，任意机器可直接运行 | [offline.exe](https://github.com/haoeastspeed/zhuangjidashi-release/releases/latest/download/ZhuangJiDaShi_1.3.1_SingleOffline.exe) |
 
 > 全部版本请见 [Releases](https://github.com/haoeastspeed/zhuangjidashi-release/releases)。
 
@@ -51,6 +51,15 @@
 软件内置 Tauri 自动更新，更新清单托管于本仓库，提供 **Releases / GitHub Pages / raw 三通道冗余**。在软件内点击「检查软件更新」即可下载并在重启后完成安装；安装版每次启动也可按需检查。
 
 ## 📝 更新日志
+
+### v1.3.1（2026-10-05）
+
+- 彻底修复「ISO 解包目标目录为空」：重写复制逻辑、可靠退出码、盘符等待与进度显示。
+- 驱动智能更新结果正常渲染，新增联网状态检测。
+- PXE 修复 DHCP 收包越界，默认选用物理网卡。
+- 驱动包库导入改为异步，不再卡顿。
+- 任务序列增加来源必填校验。
+- 统一错误提示中文化；通过全页面离屏回归。
 
 ### v1.3.0（2026-10-04）
 
